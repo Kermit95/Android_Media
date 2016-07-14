@@ -30,13 +30,22 @@ public class AudioConfig {
      *
      */
     // audio configuration
-    public static final int SAMPLE_RATE = 16000;
+//    public static final int SAMPLE_RATE = 16000;
+//    public static final int AUDIO_SOURCE = MediaRecorder.AudioSource.MIC;
+//    public static final int CHANNEL_IN = AudioFormat.CHANNEL_IN_STEREO;
+//    public static final int CHANNEL_OUT = AudioFormat.CHANNEL_OUT_STEREO;
+//    public static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+//    public static final int CHANNEL_COUNT = 2;
+//    public static final int BITRATE = 32000;
+
+    // 16000, 11025, 1
+    public static final int SAMPLE_RATE = 11025;
     public static final int AUDIO_SOURCE = MediaRecorder.AudioSource.MIC;
-    public static final int CHANNEL_IN = AudioFormat.CHANNEL_IN_STEREO;
-    public static final int CHANNEL_OUT = AudioFormat.CHANNEL_OUT_STEREO;
+    public static final int CHANNEL_IN = AudioFormat.CHANNEL_IN_MONO;
+    public static final int CHANNEL_OUT = AudioFormat.CHANNEL_OUT_MONO;
     public static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    public static final int CHANNEL_COUNT = 2;
-    public static final int BITRATE = 32000;
+    public static final int CHANNEL_COUNT = 1;
+    public static final int BITRATE = 16000;
 
 
 //    public static final int SAMPLE_RATE = 44100;

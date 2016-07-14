@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,8 +95,6 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
 
         mRecorder = new AudioRecordRecorder();
         mPlayer = new AudioTrackPlayer();
-//        mEncoder = new FFmpegEncoder(this);
-//        mEncoder = new AccCodecEncoder(this);
         mEncoder = new MediaCodecEncoder();
 
         initFile();
@@ -140,7 +139,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                            requestPermissions(new String[]{ Manifest.permission.RECORD_AUDIO },
                                     PERMISSION_REQUEST_RECORD_AUDIO);
                         }
                     }
@@ -361,22 +360,22 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             viewHolder.play = (Button) convertView.findViewById(R.id.btn_record_play);
             viewHolder.stop = (Button) convertView.findViewById(R.id.btn_record_stop);
             viewHolder.encode = (Button) convertView.findViewById(R.id.btn_record_encode);
-//            viewHolder.continueRecord = (Button) convertView.findViewById(R.id.btn_record_continue);
-
-
-            String targetPath = fileDirPath + File.separator + recordFilesName[position];
-            mPlayer.prepare(targetPath);
 
             viewHolder.filename.setText(recordFilesName[position]);
+
             viewHolder.play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String targetPath = fileDirPath + File.separator + recordFilesName[position];
+                    mPlayer.prepare(targetPath);
                     mPlayer.play();
                 }
             });
             viewHolder.stop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String targetPath = fileDirPath + File.separator + recordFilesName[position];
+                    mPlayer.prepare(targetPath);
                     mPlayer.stop();
                 }
             });
@@ -401,24 +400,14 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void onFinish() {
                             mProgressDialog.dismiss();
+                            Toast.makeText(AudioRecordActivity.this, "Finish!", Toast.LENGTH_SHORT).show();
                         }
                     });
 
-                    try {
-                        mEncoder.encode();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    mEncoder.encode();
 
                 }
             });
-
-//            viewHolder.continueRecord.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    mRecorder.resume();
-//                }
-//            });
 
             return convertView;
         }
@@ -428,7 +417,6 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             Button play;
             Button stop;
             Button encode;
-//            Button continueRecord;
         }
     }
 

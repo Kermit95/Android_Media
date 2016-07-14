@@ -27,7 +27,7 @@ public class AudioTrackPlayer implements OhMyPlayer {
 
     @Override
     public void prepare(String targetPath) {
-        outBufferSize = AudioRecord.getMinBufferSize(
+        outBufferSize = AudioTrack.getMinBufferSize(
                 AudioConfig.SAMPLE_RATE,
                 AudioConfig.CHANNEL_OUT,
                 AudioConfig.AUDIO_ENCODING);

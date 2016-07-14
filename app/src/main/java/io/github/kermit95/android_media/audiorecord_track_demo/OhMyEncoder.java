@@ -12,7 +12,7 @@ public interface OhMyEncoder {
 
     void prepare(String inputPath, String outputPath, EncoderCallback callback);
 
-    void encode() throws IOException;
+    void encode();
 
     void relase();
 }

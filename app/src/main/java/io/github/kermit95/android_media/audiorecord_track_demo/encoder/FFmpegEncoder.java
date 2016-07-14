@@ -51,7 +51,7 @@ public class FFmpegEncoder implements OhMyEncoder {
     }
 
     @Override
-    public void encode() throws IOException {
+    public void encode() {
         pcm2acc();
     }
 
