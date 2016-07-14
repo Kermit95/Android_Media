@@ -1,12 +1,14 @@
-package io.github.kermit95.android_media.refractor_and;
+package io.github.kermit95.android_media.audiorecord_track_demo.recorder;
 
 import android.media.AudioRecord;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
+
+import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.audiorecord_track_demo.OhMyRecorder;
 
 /**
  * Created by kermit on 16/7/13.
@@ -18,15 +20,19 @@ public class AudioRecordRecorder implements OhMyRecorder {
     private AudioRecord audioRecord;
     private int inBufferSize;
 
-    private File targetFile;
+    private String targetPath;
 
     // flag
     private boolean isRecording = false;
     private boolean isRecordPause = false;
 
+    private RecorderCallback mCallback;
+
 
     @Override
-    public void prepare(File tagetFile) {
+    public void prepare(String targetPath, RecorderCallback callback) {
+
+        this.mCallback = callback;
 
         // bufferSize = samplerate x bit-width x 采样时间 x channel_count
         inBufferSize = AudioRecord.getMinBufferSize(
@@ -41,22 +47,22 @@ public class AudioRecordRecorder implements OhMyRecorder {
                 AudioConfig.AUDIO_ENCODING,
                 inBufferSize);
 
-        this.targetFile = tagetFile;
+        this.targetPath = targetPath;
     }
 
     @Override
     public void record() {
-        new RecordTask().execute(targetFile);
+        new RecordTask().execute(targetPath);
     }
 
     @Override
     public void pause() {
-        isRecordPause = true;
+        isRecording = false;
     }
 
     @Override
     public void resume() {
-        isRecordPause = false;
+        new RecordTask().execute(targetPath);
     }
 
     @Override
@@ -75,10 +81,10 @@ public class AudioRecordRecorder implements OhMyRecorder {
         }
     }
 
-    private class RecordTask extends AsyncTask<File, Integer, Void> {
+    private class RecordTask extends AsyncTask<String, Integer, Void> {
 
         @Override
-        protected Void doInBackground(File... params) {
+        protected Void doInBackground(String... params) {
 
             RandomAccessFile randomAccessFile = null;
 
@@ -100,13 +106,11 @@ public class AudioRecordRecorder implements OhMyRecorder {
                 isRecording = true;
 
                 while(isRecording) {
-                    if (!isRecordPause) {
-                        audioRecord.read(buffer, 0, buffer.length);
+                    audioRecord.read(buffer, 0, buffer.length);
 
-                        //向原文件中追加内容
-                        randomAccessFile.seek(randomAccessFile.length());
-                        randomAccessFile.write(buffer, 0, buffer.length);
-                    }
+                    //向原文件中追加内容
+                    randomAccessFile.seek(randomAccessFile.length());
+                    randomAccessFile.write(buffer, 0, buffer.length);
                 }
 
                 audioRecord.stop();
@@ -116,6 +120,12 @@ public class AudioRecordRecorder implements OhMyRecorder {
                 Log.e("AudioRecord", "Recording Failed");
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mCallback.onFinish();
         }
     }
 

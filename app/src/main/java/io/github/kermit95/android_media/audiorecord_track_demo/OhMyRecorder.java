@@ -1,6 +1,6 @@
-package io.github.kermit95.android_media.refractor_and;
+package io.github.kermit95.android_media.audiorecord_track_demo;
 
-import java.io.File;
+import io.github.kermit95.android_media.audiorecord_track_demo.recorder.RecorderCallback;
 
 /**
  * Created by kermit on 16/7/13.
@@ -11,7 +11,7 @@ public interface OhMyRecorder {
     /**
      * initialize
      */
-    void prepare(File tagetFile);
+    void prepare(String targetPath, RecorderCallback callback);
 
     /**
      * record

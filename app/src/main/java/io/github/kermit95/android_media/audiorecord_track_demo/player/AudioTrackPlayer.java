@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.refractor_and;
+package io.github.kermit95.android_media.audiorecord_track_demo.player;
 
 import android.media.AudioRecord;
 import android.media.AudioTrack;
@@ -6,25 +6,27 @@ import android.os.AsyncTask;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.audiorecord_track_demo.OhMyPlayer;
 
 /**
  * Created by kermit on 16/7/13.
  */
 
-public class AudioTrackPlayer implements OhMyPlayer{
+public class AudioTrackPlayer implements OhMyPlayer {
 
     // audio track
     private AudioTrack audioTrack;
     private int outBufferSize;
 
     // targetfile
-    private File targetFile;
+    private String targetPath;
 
     @Override
-    public void prepare(File tagetFile) {
+    public void prepare(String targetPath) {
         outBufferSize = AudioRecord.getMinBufferSize(
                 AudioConfig.SAMPLE_RATE,
                 AudioConfig.CHANNEL_OUT,
@@ -38,12 +40,12 @@ public class AudioTrackPlayer implements OhMyPlayer{
                 outBufferSize,
                 AudioTrack.MODE_STREAM);
 
-        this.targetFile = tagetFile;
+        this.targetPath = targetPath;
     }
 
     @Override
     public void play() {
-        new PlayTask().execute(targetFile);
+        new PlayTask().execute(targetPath);
     }
 
     @Override
@@ -71,10 +73,10 @@ public class AudioTrackPlayer implements OhMyPlayer{
         }
     }
 
-    private class PlayTask extends AsyncTask<File, Integer, Void> {
+    private class PlayTask extends AsyncTask<String, Integer, Void> {
 
         @Override
-        protected Void doInBackground(File... params) {
+        protected Void doInBackground(String... params) {
 
             DataInputStream dis;
 

@@ -44,10 +44,18 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_delete_all"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="删除全部"
+        />
+
     <ListView
         android:id="@+id/list_record"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </ListView>
+    
 
 </LinearLayout>

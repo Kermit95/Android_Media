@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.mediademo;
+package io.github.kermit95.android_media.mediaplay_record_demo;
 
 import android.Manifest;
 import android.content.DialogInterface;

@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiodemo;
+package io.github.kermit95.android_media.audiorecord_track_demo;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -20,27 +20,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-
-import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import io.github.kermit95.android_media.R;
-import io.github.kermit95.android_media.ffmpeg.FFmpegParam;
-import io.github.kermit95.android_media.refractor_and.AccCodec;
-import io.github.kermit95.android_media.refractor_and.AudioRecordRecorder;
-import io.github.kermit95.android_media.refractor_and.AudioTrackPlayer;
-import io.github.kermit95.android_media.refractor_and.OhMyEncoder;
-import io.github.kermit95.android_media.refractor_and.OhMyPlayer;
-import io.github.kermit95.android_media.refractor_and.OhMyRecorder;
+import io.github.kermit95.android_media.audiorecord_track_demo.encoder.AccCodecEncoder;
+import io.github.kermit95.android_media.audiorecord_track_demo.encoder.EncoderCallback;
+import io.github.kermit95.android_media.audiorecord_track_demo.encoder.FFmpegEncoder;
+import io.github.kermit95.android_media.audiorecord_track_demo.encoder.MediaCodecEncoder;
+import io.github.kermit95.android_media.audiorecord_track_demo.player.AudioTrackPlayer;
+import io.github.kermit95.android_media.audiorecord_track_demo.recorder.AudioRecordRecorder;
+import io.github.kermit95.android_media.audiorecord_track_demo.recorder.RecorderCallback;
 
 
 /**
@@ -63,20 +56,17 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
     private Button mBtnPause;
     private Button mBtnSave;
     private Button mBtnResume;
+    private Button mBtnDeleteAll;
     private AlertDialog mDialog;
+    private ProgressDialog mProgressDialog;
 
     // Audio Worker
-//    private AudioWorker mAudioWorker;
     private OhMyPlayer mPlayer;
     private OhMyEncoder mEncoder;
     private OhMyRecorder mRecorder;
 
     // data
     private String[] recordFilesName;
-
-    // FFmpeg
-    private FFmpeg mFmpeg;
-    private ProgressDialog mProgressDialog;
 
 
     @Override
@@ -89,36 +79,27 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         mBtnPause = (Button) findViewById(R.id.btn_pause);
         mBtnSave = (Button) findViewById(R.id.btn_save);
         mBtnResume = (Button) findViewById(R.id.btn_resume);
-
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle(null);
+        mBtnDeleteAll = (Button) findViewById(R.id.btn_delete_all);
 
         mBtnRecord.setOnClickListener(this);
         mBtnPause.setOnClickListener(this);
         mBtnSave.setOnClickListener(this);
         mBtnResume.setOnClickListener(this);
+        mBtnDeleteAll.setOnClickListener(this);
+
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(null);
 
         handlePermission();
 
-//        mAudioWorker = new AudioWorker(this);
         mRecorder = new AudioRecordRecorder();
         mPlayer = new AudioTrackPlayer();
-        mEncoder = new AccCodec(this);
+//        mEncoder = new FFmpegEncoder(this);
+//        mEncoder = new AccCodecEncoder(this);
+        mEncoder = new MediaCodecEncoder();
 
         initFile();
         initLisetView();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        if (mAudioWorker != null){
-//            mAudioWorker.releasePlayer();
-//            mAudioWorker.releaseRecorder();
-//        }
-        mRecorder.release();
-        mPlayer.release();
     }
 
 
@@ -131,10 +112,13 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             File files = new File(fileDirPath);
 
             if (!files.exists()){
-                files.mkdir();
+                if (files.mkdir()){
+                    recordFilesName = files.list();
+                }
+            }else {
+                recordFilesName = files.list();
             }
 
-            recordFilesName = files.list();
         }
     }
 
@@ -176,12 +160,6 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("功能受限");
                     builder.setMessage("由于未能得到权限, 将无法录制音频");
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-//                            checkedPermission = true;
-                        }
-                    });
                     builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
@@ -209,48 +187,56 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
 
                                 // set save file name
                                 filePath = fileDirPath + File.separator + text +
-                                        new SimpleDateFormat("yyyyMMddHHmmss")
+                                        new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA)
                                                 .format(System .currentTimeMillis()) + ".pcm";
+
                                 savedFile = new File(filePath);
 
-                                try {
-                                    savedFile.createNewFile();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-
                                 // start record
-                                mRecorder.prepare(savedFile);
+                                mRecorder.prepare(filePath, new RecorderCallback() {
+                                    @Override
+                                    public void onStart() {
+
+                                    }
+
+                                    @Override
+                                    public void onFinish() {
+                                        updateDir();
+                                    }
+                                });
                                 mRecorder.record();
 
                                 // set button
                                 toggleRecordButton(false);
+                                togglePauseButton(true);
                                 toggleResumeButton(false);
-                                mDialog.dismiss();
+                                toggleSaveButton(true);
 
-                                updateDir();
+                                mDialog.dismiss();
                             }
                         });
 
                 mDialog = builder.create();
-                mDialog.setCancelable(false);
+                mDialog.setCancelable(true);
                 mDialog.show();
                 break;
             case R.id.btn_pause:
-//                mAudioWorker.pauseRecord();
                 mRecorder.pause();
-                toggleRecordButton(true);
+
+                toggleRecordButton(false);
+                togglePauseButton(false);
                 toggleResumeButton(true);
+                toggleSaveButton(true);
                 break;
             case R.id.btn_resume:
                 mRecorder.resume();
-//                mAudioWorker.resumeRecord();
+                toggleRecordButton(false);
+                togglePauseButton(true);
+                toggleResumeButton(false);
+                toggleSaveButton(true);
                 break;
             case R.id.btn_save:
                 if (savedFile != null && savedFile.exists()){
-
-//                    mAudioWorker.stopRecord();
                     mRecorder.stop();
                     new AlertDialog.Builder(this)
                             .setTitle("Save?")
@@ -258,26 +244,42 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    savedFile.delete();
-                                    updateDir();
+                                    if (savedFile.delete()){
+                                        updateDir();
+                                    }
                                 }
                             }).show();
                 }
+
                 toggleRecordButton(true);
+                togglePauseButton(true);
+                toggleResumeButton(true);
+                toggleSaveButton(true);
+                break;
+            case R.id.btn_delete_all:
+                fileDelete(new File(fileDirPath));
+                updateDir();
                 break;
         }
     }
 
     private void toggleSaveButton(boolean active){
         if (active){
-            mBtnResume.setText("停止/保存");
-            mBtnResume.setEnabled(true);
+            mBtnSave.setText("停止/保存");
         }else{
-            mBtnResume.setText("停止/保存");
-            mBtnResume.setEnabled(false);
+            mBtnSave.setText("停止/保存");
         }
+        mBtnSave.setEnabled(active);
     }
 
+    private void togglePauseButton(boolean active){
+        if (active){
+            mBtnPause.setText("暂停");
+        }else {
+            mBtnPause.setText("暂停中");
+        }
+        mBtnPause.setEnabled(active);
+    }
 
     private void toggleResumeButton(boolean active){
         if (active){
@@ -294,7 +296,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             mBtnRecord.setText("录音");
             mBtnRecord.setEnabled(true);
         }else{
-            mBtnRecord.setText("录音...");
+            mBtnRecord.setText("录音中");
             mBtnRecord.setEnabled(false);
         }
     }
@@ -311,12 +313,19 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         mRecordAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRecorder.release();
+        mPlayer.release();
+    }
 
-    class RecordAdapter extends BaseAdapter {
+
+    private class RecordAdapter extends BaseAdapter {
 
         private LayoutInflater mInflater;
 
-        public RecordAdapter(){
+        RecordAdapter(){
             mInflater = LayoutInflater.from(AudioRecordActivity.this);
         }
 
@@ -339,6 +348,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         public View getView(final int position, View convertView, ViewGroup parent) {
 
             final ViewHolder viewHolder;
+
             if (convertView == null){
                 viewHolder = new ViewHolder();
                 convertView = mInflater.inflate(R.layout.item_record, parent, false);
@@ -351,41 +361,64 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             viewHolder.play = (Button) convertView.findViewById(R.id.btn_record_play);
             viewHolder.stop = (Button) convertView.findViewById(R.id.btn_record_stop);
             viewHolder.encode = (Button) convertView.findViewById(R.id.btn_record_encode);
+//            viewHolder.continueRecord = (Button) convertView.findViewById(R.id.btn_record_continue);
 
+
+            String targetPath = fileDirPath + File.separator + recordFilesName[position];
+            mPlayer.prepare(targetPath);
 
             viewHolder.filename.setText(recordFilesName[position]);
             viewHolder.play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    String targetPath = fileDirPath + File.separator + recordFilesName[position];
-                    File targetFile = new File(targetPath);
-
-//                    mAudioWorker.play(targetFile);
-                    mPlayer.prepare(targetFile);
                     mPlayer.play();
-
                 }
             });
             viewHolder.stop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    mAudioWorker.stopPlay();
                     mPlayer.stop();
                 }
             });
+
             viewHolder.encode.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                     String targetPath = fileDirPath + File.separator + recordFilesName[position];
-//                    mAudioWorker.convertToM4A(targetPath);
-                    mEncoder.prepare(new File(targetPath), new File(targetPath.replace(".pcm", ".m4a")));
-                    mEncoder.encode();
-//                    pcm2acc(targetPath, fileDirPath + File.separator + "encode.m4a");
+
+                    mEncoder.prepare(targetPath, targetPath.replace(".pcm", ".m4a"), new EncoderCallback() {
+                        @Override
+                        public void onStart() {
+                            mProgressDialog.show();
+                        }
+
+                        @Override
+                        public void onProgress(String msg) {
+                            mProgressDialog.setMessage(msg);
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            mProgressDialog.dismiss();
+                        }
+                    });
+
+                    try {
+                        mEncoder.encode();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 }
             });
+
+//            viewHolder.continueRecord.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    mRecorder.resume();
+//                }
+//            });
 
             return convertView;
         }
@@ -395,57 +428,29 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             Button play;
             Button stop;
             Button encode;
+//            Button continueRecord;
         }
     }
 
-
-
-
-
-    /** 以下是尝试使用 FFmpeg , 没有成功 **/
-    // encode pcm to acc
-    private void pcm2acc(String in, String out){
-        String s = FFmpegParam.FF_PREFIX + in + FFmpegParam.FF_SUFFIX + out;
-        String[] command = s.split(" ");
-        execFFmpegBinary(command);
-    }
-
-
-    // ffmpeg -f s16le -ar 44100 -ac 2 -i test.pcm -acodec aac -strict experimental test.aac
-    private void execFFmpegBinary(final String[] command){
-        try {
-            mFmpeg.execute(command, new ExecuteBinaryResponseHandler(){
-                @Override
-                public void onStart() {
-                    Log.d(TAG, "Started command : ffmpeg " + command);
-                    mProgressDialog.setMessage("Processing...");
-                    mProgressDialog.show();
-                }
-
-                @Override
-                public void onProgress(String message) {
-                    mProgressDialog.setMessage("Processing\n"+ message);
-                }
-
-                @Override
-                public void onFinish() {
-                    Toast.makeText(AudioRecordActivity.this, "Finish!", Toast.LENGTH_SHORT).show();
-                    mProgressDialog.dismiss();
-                }
-
-                @Override
-                public void onFailure(String message) {
-                    Log.e(TAG, "onFailure: " + message);
-                }
-
-                @Override
-                public void onSuccess(String message) {
-                    Log.e(TAG, "onSuccess " + message);
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
+    /**
+     * 删除文件，可删除文件夹
+     * @param file
+     */
+    private void fileDelete(File file){
+        if(file.isFile()){
+            file.delete();
+            return;
+        }
+        if(file.isDirectory()){
+            File[] childFile = file.listFiles();
+            if(childFile == null || childFile.length == 0){
+                file.delete();
+                return;
+            }
+            for(File f : childFile){
+                fileDelete(f);
+            }
+            file.delete();
         }
     }
-
 }

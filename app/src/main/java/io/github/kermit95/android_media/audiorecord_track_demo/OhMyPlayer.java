@@ -1,6 +1,4 @@
-package io.github.kermit95.android_media.refractor_and;
-
-import java.io.File;
+package io.github.kermit95.android_media.audiorecord_track_demo;
 
 /**
  * Created by kermit on 16/7/13.
@@ -11,7 +9,7 @@ public interface OhMyPlayer {
     /**
      * initialize
      */
-    void prepare(File tagetFile);
+    void prepare(String tagetPath);
 
     /**
      * play audio

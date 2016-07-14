@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiodemo;
+package io.github.kermit95.android_media.audiorecord_track_demo.encoder;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
@@ -6,44 +6,28 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-/**
- * Created by kermit on 16/7/12.
- */
+import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.audiorecord_track_demo.OhMyEncoder;
 
 /**
-
-编解码流程
-
-1. createEncoderByType/createDecoderByType
-2. configure
-3. start
-
-
-while(1) {
-  dequeueInputBuffer
-  queueInputBuffer
-  dequeueOutputBuffer
-  releaseOutputBuffer
-}
-
+ * Created by kermit on 16/7/14.
  */
-public class AACEncoder {
 
-    private static final String TAG = "AACEncoder";
+public class MediaCodecEncoder implements OhMyEncoder {
+
+    private static final String TAG = "MediaCodecEncoder";
 
     private static final String COMPRESSED_AUDIO_FILE_MIME_TYPE = "audio/mp4a-latm";
 
     private static final int CODEC_TIMEOUT = 5000;
-
-    private int bitrate;
-    private int sampleRate;
-    private int channelCount;
 
     private MediaFormat mediaFormat;
     private MediaCodec mediaCodec;
@@ -51,38 +35,33 @@ public class AACEncoder {
     private ByteBuffer[] codecInputBuffers;
     private ByteBuffer[] codecOutputBuffers;
     private MediaCodec.BufferInfo bufferInfo;
-    private String outputPath;
+
     private int audioTrackId;
     private int totalBytesRead;
     private double presentationTimeUs;
 
-    /**
-     * Creates encoder with given params for output file
-     *
-     * @param bitrate
-     * @param sampleRate 11025
-     * @param channelCount 1
-     */
-    public AACEncoder(final int bitrate, final int sampleRate, int channelCount) {
-        this.bitrate = bitrate;
-        this.sampleRate = sampleRate;
-        this.channelCount = channelCount;
+    private String inputPath;
+    private String outputPath;
+
+    private EncoderCallback mCallback;
+
+
+    public MediaCodecEncoder(){
     }
 
-    public void setOutputPath(final String outputPath) {
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @Override
+    public void prepare(String inputPath, String outputPath, EncoderCallback callback) {
+
+        this.inputPath = inputPath;
         this.outputPath = outputPath;
-    }
+        this.mCallback = callback;
 
-    // MediaCodec API >= 16, MediaMuxer API >= 18
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public void prepare() {
-        if (outputPath == null) {
-            throw new IllegalStateException("The output path must be set first!");
-        }
         try {
-            mediaFormat = MediaFormat.createAudioFormat(COMPRESSED_AUDIO_FILE_MIME_TYPE, sampleRate, channelCount);
+            mediaFormat = MediaFormat.createAudioFormat(COMPRESSED_AUDIO_FILE_MIME_TYPE, AudioConfig.SAMPLE_RATE, AudioConfig.CHANNEL_COUNT);
             mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
+            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, AudioConfig.BITRATE);
 
             mediaCodec = MediaCodec.createEncoderByType(COMPRESSED_AUDIO_FILE_MIME_TYPE);
             mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -101,35 +80,22 @@ public class AACEncoder {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public void stop() {
-        Log.d(TAG, "Stopping PCMEncoder");
-        mediaCodec.stop();
-        mediaCodec.release();
-        mediaMuxer.stop();
-        mediaMuxer.release();
-    }
-
-    /**
-     * Encodes input stream
-     *
-     * @param inputStream
-     * @param sampleRate sample rate of input stream
-     * @throws IOException
-     */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public void encode(InputStream inputStream, int sampleRate) throws IOException {
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @Override
+    public void encode() throws IOException {
         Log.d(TAG, "Starting encoding of InputStream");
-        byte[] tempBuffer = new byte[2 * sampleRate];
+        byte[] tempBuffer = new byte[2 * AudioConfig.SAMPLE_RATE];
         boolean hasMoreData = true;
         boolean stop = false;
+
+        InputStream inputStream = new FileInputStream(inputPath);
 
         while (!stop) {
 
             int inputBufferIndex = 0;
             int currentBatchRead = 0;
 
-            while (inputBufferIndex != -1 && hasMoreData && currentBatchRead <= 50 * sampleRate) {
+            while (inputBufferIndex != -1 && hasMoreData && currentBatchRead <= 50 * AudioConfig.SAMPLE_RATE) {
                 inputBufferIndex = mediaCodec.dequeueInputBuffer(CODEC_TIMEOUT);
 
                 if (inputBufferIndex >= 0) {
@@ -149,7 +115,7 @@ public class AACEncoder {
                         currentBatchRead += bytesRead;
                         buffer.put(tempBuffer, 0, bytesRead);
                         mediaCodec.queueInputBuffer(inputBufferIndex, 0, bytesRead, (long) presentationTimeUs, 0);
-                        presentationTimeUs = 1000000L * (totalBytesRead / 2) / sampleRate;
+                        presentationTimeUs = 1000000L * (totalBytesRead / 2) / AudioConfig.SAMPLE_RATE;
                     }
                 }
             }
@@ -186,4 +152,27 @@ public class AACEncoder {
         inputStream.close();
         Log.d(TAG, "Finished encoding of InputStream");
     }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @Override
+    public void relase() {
+        if (mediaCodec != null){
+            mediaCodec.release();
+        }
+        if (mediaMuxer != null){
+            mediaMuxer.release();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void stop() {
+        Log.d(TAG, "Stopping PCMEncoder");
+        if (mediaCodec != null){
+            mediaCodec.stop();
+        }
+        if (mediaMuxer != null){
+            mediaMuxer.stop();
+        }
+    }
+
 }

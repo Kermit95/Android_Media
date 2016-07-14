@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.ffmpeg;
+package io.github.kermit95.android_media.ffmpegdemo;
 
 import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private EditText mEditText;
     private LinearLayout mOutputLayout;
     private ProgressDialog mProgressDialog;
-
 
     private FFmpeg mFFmpeg;
 
@@ -81,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onStart() {
                     mOutputLayout.removeAllViews();
-                    Log.d(TAG, "Started command : ffmpeg " + command);
                     mProgressDialog.setMessage("Processing...");
                     mProgressDialog.show();
                 }
