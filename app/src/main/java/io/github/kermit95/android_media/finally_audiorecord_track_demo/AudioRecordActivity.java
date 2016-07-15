@@ -107,9 +107,9 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
 
     private void initButtonState(){
         toggleRecordButton(true);
-        toggleSaveButton(false);
         togglePauseButton(false);
         toggleResumeButton(false);
+        toggleSaveButton(false);
         toggleDeleteAll(true);
     }
 
@@ -180,6 +180,14 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    private void recordState(){
+        toggleRecordButton(false);
+        togglePauseButton(true);
+        toggleResumeButton(false);
+        toggleSaveButton(true);
+        toggleDeleteAll(false);
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -218,28 +226,22 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                                 mRecorder.record();
 
                                 // set button
-                                toggleRecordButton(false);
-                                togglePauseButton(true);
-                                toggleResumeButton(false);
-                                toggleSaveButton(true);
-                                toggleDeleteAll(false);
+                                recordState();
+
                             }
                         }).setCancelable(true).show();
                 break;
             case R.id.btn_pause:
                 mRecorder.pause();
 
-                toggleRecordButton(false);
                 togglePauseButton(false);
                 toggleResumeButton(true);
-                toggleSaveButton(true);
                 break;
             case R.id.btn_resume:
                 mRecorder.resume();
-                toggleRecordButton(false);
+
                 togglePauseButton(true);
                 toggleResumeButton(false);
-                toggleSaveButton(true);
                 break;
             case R.id.btn_save:
                 if (savedFile != null && savedFile.exists()){
@@ -249,11 +251,6 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    toggleRecordButton(true);
-                                    togglePauseButton(true);
-                                    toggleResumeButton(true);
-                                    toggleSaveButton(true);
-                                    toggleDeleteAll(true);
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -262,9 +259,9 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                                     if (savedFile.delete()){
                                         updateDir();
                                     }
-                                    initButtonState();
                                 }
                             }).show();
+                   initButtonState();
                 }
 
                 break;
