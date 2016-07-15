@@ -57,12 +57,12 @@ public class AudioRecordRecorder implements OhMyRecorder {
 
     @Override
     public void pause() {
-        isRecording = false;
+        isRecordPause = true;
     }
 
     @Override
     public void resume() {
-        new RecordTask().execute(targetPath);
+        isRecordPause = false;
     }
 
     @Override
@@ -106,11 +106,13 @@ public class AudioRecordRecorder implements OhMyRecorder {
                 isRecording = true;
 
                 while(isRecording) {
-                    audioRecord.read(buffer, 0, buffer.length);
+                    if (!isRecordPause) {
+                        audioRecord.read(buffer, 0, buffer.length);
 
-                    //向原文件中追加内容
-                    randomAccessFile.seek(randomAccessFile.length());
-                    randomAccessFile.write(buffer, 0, buffer.length);
+                        //向原文件中追加内容
+                        randomAccessFile.seek(randomAccessFile.length());
+                        randomAccessFile.write(buffer, 0, buffer.length);
+                    }
                 }
 
                 audioRecord.stop();

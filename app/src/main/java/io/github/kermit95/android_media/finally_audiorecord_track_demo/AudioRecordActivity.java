@@ -85,6 +85,8 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         mBtnResume.setOnClickListener(this);
         mBtnDeleteAll.setOnClickListener(this);
 
+        initButtonState();
+
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(null);
 
@@ -94,29 +96,39 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         mPlayer = new AudioTrackPlayer();
         mEncoder = new MediaCodecEncoder();
 
-        initFile();
-        initLisetView();
-    }
-
-
-    private void initFile() {
         if(Environment.getExternalStorageState().
                 equals( Environment.MEDIA_MOUNTED)){
             fileDirPath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + "/TestRecord";
+        }
 
-            File files = new File(fileDirPath);
+        initLisetView();
+    }
 
-            if (!files.exists()){
-                if (files.mkdir()){
-                    recordFilesName = files.list();
-                }
-            }else {
+    private void initButtonState(){
+        toggleRecordButton(true);
+        toggleSaveButton(false);
+        togglePauseButton(false);
+        toggleResumeButton(false);
+    }
+
+    /**
+     * 更新文件目录, 更新listview的显示
+     */
+    private void updateDir(){
+        // read updated file
+        File files = new File(fileDirPath);
+        if (!files.exists()){
+            if (files.mkdir()){
                 recordFilesName = files.list();
             }
-
+        }else {
+            recordFilesName = files.list();
         }
+        // update listview
+        mRecordAdapter.notifyDataSetChanged();
     }
+
 
     private void initLisetView() {
         mRecordAdapter = new RecordAdapter();
@@ -172,8 +184,9 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         switch (v.getId()){
             case R.id.btn_record:
                 final EditText ed_filename = new EditText(this);
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("输入文件名(可不输入):")
+
+                new AlertDialog.Builder(this)
+                        .setTitle("输入文件名(可不输入):")
                         .setView(ed_filename)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
@@ -200,6 +213,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                                         updateDir();
                                     }
                                 });
+
                                 mRecorder.record();
 
                                 // set button
@@ -207,14 +221,9 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                                 togglePauseButton(true);
                                 toggleResumeButton(false);
                                 toggleSaveButton(true);
-
-                                mDialog.dismiss();
+                                toggleDeleteAll(false);
                             }
-                        });
-
-                mDialog = builder.create();
-                mDialog.setCancelable(true);
-                mDialog.show();
+                        }).setCancelable(true).show();
                 break;
             case R.id.btn_pause:
                 mRecorder.pause();
@@ -251,9 +260,11 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                 togglePauseButton(true);
                 toggleResumeButton(true);
                 toggleSaveButton(true);
+                toggleDeleteAll(true);
                 break;
             case R.id.btn_delete_all:
                 fileDelete(new File(fileDirPath));
+                initButtonState();
                 updateDir();
                 break;
         }
@@ -297,16 +308,8 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    /**
-     * 更新文件目录, 更新listview的显示
-     */
-    private void updateDir(){
-        // read updated file
-        File files = new File(fileDirPath);
-        recordFilesName = files.list();
-
-        // update listview
-        mRecordAdapter.notifyDataSetChanged();
+    private void toggleDeleteAll(boolean active){
+        mBtnDeleteAll.setEnabled(active);
     }
 
     @Override
