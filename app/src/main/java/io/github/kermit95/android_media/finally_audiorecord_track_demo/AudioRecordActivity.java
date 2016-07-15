@@ -110,6 +110,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         toggleSaveButton(false);
         togglePauseButton(false);
         toggleResumeButton(false);
+        toggleDeleteAll(true);
     }
 
     /**
@@ -245,22 +246,27 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                     mRecorder.stop();
                     new AlertDialog.Builder(this)
                             .setTitle("Save?")
-                            .setPositiveButton("Yes", null)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    toggleRecordButton(true);
+                                    togglePauseButton(true);
+                                    toggleResumeButton(true);
+                                    toggleSaveButton(true);
+                                    toggleDeleteAll(true);
+                                }
+                            })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (savedFile.delete()){
                                         updateDir();
                                     }
+                                    initButtonState();
                                 }
                             }).show();
                 }
 
-                toggleRecordButton(true);
-                togglePauseButton(true);
-                toggleResumeButton(true);
-                toggleSaveButton(true);
-                toggleDeleteAll(true);
                 break;
             case R.id.btn_delete_all:
                 fileDelete(new File(fileDirPath));
