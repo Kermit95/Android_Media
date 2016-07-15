@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiorecord_track_demo.encoder;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo.encoder;
 
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
-import io.github.kermit95.android_media.audiorecord_track_demo.OhMyEncoder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyEncoder;
 
 /**
  * Created by kermit on 16/7/14.

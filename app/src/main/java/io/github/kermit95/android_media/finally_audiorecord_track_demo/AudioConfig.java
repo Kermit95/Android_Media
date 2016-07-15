@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiorecord_track_demo;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo;
 
 import android.media.AudioFormat;
 import android.media.MediaRecorder;

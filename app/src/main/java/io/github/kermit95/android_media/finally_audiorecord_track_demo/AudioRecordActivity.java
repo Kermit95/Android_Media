@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiorecord_track_demo;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -23,18 +23,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import io.github.kermit95.android_media.R;
-import io.github.kermit95.android_media.audiorecord_track_demo.encoder.AccCodecEncoder;
-import io.github.kermit95.android_media.audiorecord_track_demo.encoder.EncoderCallback;
-import io.github.kermit95.android_media.audiorecord_track_demo.encoder.FFmpegEncoder;
-import io.github.kermit95.android_media.audiorecord_track_demo.encoder.MediaCodecEncoder;
-import io.github.kermit95.android_media.audiorecord_track_demo.player.AudioTrackPlayer;
-import io.github.kermit95.android_media.audiorecord_track_demo.recorder.AudioRecordRecorder;
-import io.github.kermit95.android_media.audiorecord_track_demo.recorder.RecorderCallback;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.encoder.EncoderCallback;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.encoder.MediaCodecEncoder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.player.AudioTrackPlayer;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder.AudioRecordRecorder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder.RecorderCallback;
 
 
 /**

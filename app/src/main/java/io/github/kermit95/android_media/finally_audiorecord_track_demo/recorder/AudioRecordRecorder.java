@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiorecord_track_demo.recorder;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder;
 
 import android.media.AudioRecord;
 import android.os.AsyncTask;
@@ -7,8 +7,8 @@ import android.util.Log;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
-import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
-import io.github.kermit95.android_media.audiorecord_track_demo.OhMyRecorder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyRecorder;
 
 /**
  * Created by kermit on 16/7/13.

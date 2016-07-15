@@ -1,6 +1,6 @@
-package io.github.kermit95.android_media.audiorecord_track_demo;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo;
 
-import io.github.kermit95.android_media.audiorecord_track_demo.recorder.RecorderCallback;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder.RecorderCallback;
 
 /**
  * Created by kermit on 16/7/13.

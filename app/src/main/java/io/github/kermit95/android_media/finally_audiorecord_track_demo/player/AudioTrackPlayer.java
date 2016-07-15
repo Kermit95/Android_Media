@@ -1,6 +1,5 @@
-package io.github.kermit95.android_media.audiorecord_track_demo.player;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo.player;
 
-import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
 
@@ -9,8 +8,8 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
-import io.github.kermit95.android_media.audiorecord_track_demo.OhMyPlayer;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyPlayer;
 
 /**
  * Created by kermit on 16/7/13.

@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiorecord_track_demo.encoder;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo.encoder;
 
 import android.content.Context;
 import android.util.Log;
@@ -9,9 +9,7 @@ import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
-import java.io.IOException;
-
-import io.github.kermit95.android_media.audiorecord_track_demo.OhMyEncoder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyEncoder;
 
 /**
  * Created by kermit on 16/7/14.

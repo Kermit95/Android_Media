@@ -1,4 +1,4 @@
-package io.github.kermit95.android_media.audiorecord_track_demo.encoder;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo.encoder;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import io.github.kermit95.android_media.audiorecord_track_demo.AudioConfig;
-import io.github.kermit95.android_media.audiorecord_track_demo.OhMyEncoder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.AudioConfig;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyEncoder;
 
 
 /**

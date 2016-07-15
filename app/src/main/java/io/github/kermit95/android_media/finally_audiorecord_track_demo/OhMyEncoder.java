@@ -1,8 +1,6 @@
-package io.github.kermit95.android_media.audiorecord_track_demo;
+package io.github.kermit95.android_media.finally_audiorecord_track_demo;
 
-import java.io.IOException;
-
-import io.github.kermit95.android_media.audiorecord_track_demo.encoder.EncoderCallback;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.encoder.EncoderCallback;
 
 /**
  * Created by kermit on 16/7/13.
