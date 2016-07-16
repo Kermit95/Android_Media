@@ -19,6 +19,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,8 +102,8 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             fileDirPath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + "/TestRecord";
         }
-
         initLisetView();
+        updateDir();
     }
 
     private void initButtonState(){
@@ -238,7 +239,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                 toggleResumeButton(true);
                 break;
             case R.id.btn_resume:
-                mRecorder.resume();
+                mRecorder.record();
 
                 togglePauseButton(true);
                 toggleResumeButton(false);
@@ -360,29 +361,38 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             }
 
             viewHolder.filename = (TextView) convertView.findViewById(R.id.tv_record_filename);
+            viewHolder.tvTime = (TextView) convertView.findViewById(R.id.tv_record_time);
+            viewHolder.mSeekBar = (SeekBar) convertView.findViewById(R.id.seekbar_record_play);
             viewHolder.play = (Button) convertView.findViewById(R.id.btn_record_play);
             viewHolder.stop = (Button) convertView.findViewById(R.id.btn_record_stop);
             viewHolder.encode = (Button) convertView.findViewById(R.id.btn_record_encode);
+            viewHolder.pause = (Button) convertView.findViewById(R.id.btn_record_pause);
 
+            // filename
             viewHolder.filename.setText(recordFilesName[position]);
 
+            // button
+            String targetPath = fileDirPath + File.separator + recordFilesName[position];
+            mPlayer.prepare(targetPath);
             viewHolder.play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String targetPath = fileDirPath + File.separator + recordFilesName[position];
-                    mPlayer.prepare(targetPath);
                     mPlayer.play();
+                }
+            });
+
+            viewHolder.pause.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mPlayer.pause();
                 }
             });
             viewHolder.stop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String targetPath = fileDirPath + File.separator + recordFilesName[position];
-                    mPlayer.prepare(targetPath);
                     mPlayer.stop();
                 }
             });
-
             viewHolder.encode.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -417,9 +427,12 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
 
         class ViewHolder{
             TextView filename;
+            TextView tvTime;
             Button play;
+            Button pause;
             Button stop;
             Button encode;
+            SeekBar mSeekBar;
         }
     }
 

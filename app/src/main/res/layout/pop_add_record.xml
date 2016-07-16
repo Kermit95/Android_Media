@@ -147,25 +147,27 @@
            android:id="@+id/btn_record_complete"
            android:visibility="invisible"
            >
-           <ImageView
-               android:layout_width="40dp"
-               android:layout_height="40dp"
-               android:layout_marginTop="55dp"
-               android:src="@drawable/btn_record_icon_complete"
-	           android:layout_centerHorizontal="true"
-	           android:id="@+id/recrod_complete_img"
-               />
-           <TextView
+
+             <TextView
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:textColor="@color/white" 
                android:textSize="@dimen/audio_record_textsize"
                android:text="@string/record_over"
-               android:layout_below="@id/recrod_complete_img"
+               android:layout_below="@+id/recrod_complete_img"
                android:layout_marginTop="16dp"
 	           android:layout_centerHorizontal="true"
 	           android:id="@+id/record_complete_txt"
                />
-       </RelativeLayout>
+
+             <ImageView
+                 android:layout_width="40dp"
+                 android:layout_height="40dp"
+                 android:src="@drawable/btn_record_icon_complete"
+                 android:id="@+id/recrod_complete_img"
+                 android:layout_alignParentBottom="true"
+                 android:layout_centerHorizontal="true"
+                 android:layout_marginBottom="35dp"/>
+         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

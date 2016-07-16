@@ -2,6 +2,7 @@ package io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder
 
 import android.media.AudioRecord;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.FileNotFoundException;
@@ -16,24 +17,32 @@ import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyRecor
 
 public class AudioRecordRecorder implements OhMyRecorder {
 
+    private static final String TAG = "AudioRecordRecorder";
+
+    /**
+     * 最大录音长度 50 min
+     */
+    private static final int MAX_LENGTH = 300 * 1000;
+
     // audiorecord
     private AudioRecord audioRecord;
     private int inBufferSize;
 
     private String targetPath;
 
-    // flag
-    private boolean isRecording = false;
-    private boolean isRecordPause = false;
-
     private RecorderCallback mCallback;
 
+    private RecordState mState;
 
-    @Override
-    public void prepare(String targetPath, RecorderCallback callback) {
+    private enum RecordState{
+        Prepared,
+        Recording,
+        Paused,
+        Stoped
+    }
 
-        this.mCallback = callback;
 
+    public AudioRecordRecorder(){
         // bufferSize = samplerate x bit-width x 采样时间 x channel_count
         inBufferSize = AudioRecord.getMinBufferSize(
                 AudioConfig.SAMPLE_RATE,
@@ -46,28 +55,37 @@ public class AudioRecordRecorder implements OhMyRecorder {
                 AudioConfig.CHANNEL_IN,
                 AudioConfig.AUDIO_ENCODING,
                 inBufferSize);
+    }
 
+
+    @Override
+    public void prepare(String targetPath, RecorderCallback callback) {
+        this.mCallback = callback;
         this.targetPath = targetPath;
+        mState = RecordState.Prepared;
     }
 
     @Override
     public void record() {
-        new RecordTask().execute(targetPath);
+        switch (mState){
+            case Prepared:
+                new RecordTask().execute(targetPath);
+                break;
+            case Paused:
+                mState = RecordState.Recording;
+                break;
+
+        }
     }
 
     @Override
     public void pause() {
-        isRecordPause = true;
-    }
-
-    @Override
-    public void resume() {
-        isRecordPause = false;
+        mState = RecordState.Paused;
     }
 
     @Override
     public void stop() {
-        isRecording = false;
+        mState = RecordState.Stoped;
     }
 
 
@@ -100,19 +118,20 @@ public class AudioRecordRecorder implements OhMyRecorder {
 
             try {
                 byte[] buffer = new byte[inBufferSize/4];
-
                 audioRecord.startRecording();
+                mState = RecordState.Recording;
 
-                isRecording = true;
+                while(mState != RecordState.Stoped) {
 
-                while(isRecording) {
-                    if (!isRecordPause) {
-                        audioRecord.read(buffer, 0, buffer.length);
-
-                        //向原文件中追加内容
-                        randomAccessFile.seek(randomAccessFile.length());
-                        randomAccessFile.write(buffer, 0, buffer.length);
+                    if (mState == RecordState.Paused){
+                        continue;
                     }
+
+                    audioRecord.read(buffer, 0, buffer.length);
+
+                    //向原文件中追加内容
+                    randomAccessFile.seek(randomAccessFile.length());
+                    randomAccessFile.write(buffer, 0, buffer.length);
                 }
 
                 audioRecord.stop();
@@ -131,5 +150,17 @@ public class AudioRecordRecorder implements OhMyRecorder {
         }
     }
 
+    // 定时器设置，实现计时, 单位是秒
+    private int timeLength = 0;
+    private Handler handler = new Handler();
+
+//    private Runnable recordTimeTask = new Runnable() {
+//        public void run() {
+//            if(mState == PlayerState.Playing){
+//                handler.postDelayed(this, 1000);
+//                timeLength++;
+//            }
+//        }
+//    };
 
 }

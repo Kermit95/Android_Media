@@ -6,35 +6,16 @@ package io.github.kermit95.android_media.finally_audiorecord_track_demo;
 
 public interface OhMyPlayer {
 
-    /**
-     * initialize
-     */
     void prepare(String tagetPath);
 
-    /**
-     * play audio
-     */
     void play();
 
-    /**
-     * pause
-     */
     void pause();
 
-    /**
-     * resume
-     */
-    void resume();
-
-    /**
-     * stop
-     */
     void stop();
 
-    /**
-     * relase
-     */
-
     void release();
+
+    void seekTo(int msec);
 
 }

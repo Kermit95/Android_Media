@@ -8,34 +8,13 @@ import io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder.
 
 public interface OhMyRecorder {
 
-    /**
-     * initialize
-     */
     void prepare(String targetPath, RecorderCallback callback);
 
-    /**
-     * record
-     */
     void record();
 
-    /**
-     * pause record
-     */
     void pause();
 
-    /**
-     * resume record
-     */
-    void resume();
-
-    /**
-     * stop and save
-     */
     void stop();
-
-    /**
-     * release
-     */
 
     void release();
 
