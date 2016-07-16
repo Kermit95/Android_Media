@@ -16,6 +16,8 @@ public interface OhMyRecorder {
 
     void stop();
 
+    RecordState getState();
+
     void release();
 
 }

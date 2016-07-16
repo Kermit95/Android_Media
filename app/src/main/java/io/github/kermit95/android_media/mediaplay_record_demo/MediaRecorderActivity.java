@@ -65,9 +65,9 @@ public class MediaRecorderActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-        mListView = (ListView) findViewById(R.id.list_record);
-        mBtnRecord = (Button) findViewById(R.id.btn_record);
-        mBtnSave = (Button) findViewById(R.id.btn_save);
+        mListView = (ListView) findViewById(R.id.list_activity_record);
+        mBtnRecord = (Button) findViewById(R.id.btn_activity_record_record);
+        mBtnSave = (Button) findViewById(R.id.btn_activity_record_save);
         mMediaPlayer = new MediaPlayer();
         mMediaRecorder = new MediaRecorder();
 
@@ -177,7 +177,7 @@ public class MediaRecorderActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.btn_record:
+            case R.id.btn_activity_record_record:
                 final EditText ed_filename = new EditText(this);
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Please input the filename to save:")
@@ -234,7 +234,7 @@ public class MediaRecorderActivity extends AppCompatActivity
                 mDialog.setCancelable(false);
                 mDialog.show();
                 break;
-            case R.id.btn_save:
+            case R.id.btn_activity_record_save:
                 if (savedFile != null && savedFile.exists()){
                     mMediaRecorder.stop();
                     mMediaRecorder.release();

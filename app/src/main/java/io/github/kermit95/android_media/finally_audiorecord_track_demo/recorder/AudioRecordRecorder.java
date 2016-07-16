@@ -3,6 +3,7 @@ package io.github.kermit95.android_media.finally_audiorecord_track_demo.recorder
 import android.media.AudioRecord;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.FileNotFoundException;
@@ -10,6 +11,7 @@ import java.io.RandomAccessFile;
 
 import io.github.kermit95.android_media.finally_audiorecord_track_demo.AudioConfig;
 import io.github.kermit95.android_media.finally_audiorecord_track_demo.OhMyRecorder;
+import io.github.kermit95.android_media.finally_audiorecord_track_demo.RecordState;
 
 /**
  * Created by kermit on 16/7/13.
@@ -34,15 +36,17 @@ public class AudioRecordRecorder implements OhMyRecorder {
 
     private RecordState mState;
 
-    private enum RecordState{
-        Prepared,
-        Recording,
-        Paused,
-        Stoped
+
+    public AudioRecordRecorder(){
+        mState = RecordState.Stoped;
     }
 
 
-    public AudioRecordRecorder(){
+    @Override
+    public void prepare(String targetPath, RecorderCallback callback) {
+        this.mCallback = callback;
+        this.targetPath = targetPath;
+
         // bufferSize = samplerate x bit-width x 采样时间 x channel_count
         inBufferSize = AudioRecord.getMinBufferSize(
                 AudioConfig.SAMPLE_RATE,
@@ -57,18 +61,10 @@ public class AudioRecordRecorder implements OhMyRecorder {
                 inBufferSize);
     }
 
-
-    @Override
-    public void prepare(String targetPath, RecorderCallback callback) {
-        this.mCallback = callback;
-        this.targetPath = targetPath;
-        mState = RecordState.Prepared;
-    }
-
     @Override
     public void record() {
         switch (mState){
-            case Prepared:
+            case Stoped:
                 new RecordTask().execute(targetPath);
                 break;
             case Paused:
@@ -88,6 +84,11 @@ public class AudioRecordRecorder implements OhMyRecorder {
         mState = RecordState.Stoped;
     }
 
+    @Override
+    public RecordState getState() {
+        return mState;
+    }
+
 
     @Override
     public void release() {
@@ -98,6 +99,7 @@ public class AudioRecordRecorder implements OhMyRecorder {
             audioRecord.release();
         }
     }
+
 
     private class RecordTask extends AsyncTask<String, Integer, Void> {
 
@@ -150,17 +152,5 @@ public class AudioRecordRecorder implements OhMyRecorder {
         }
     }
 
-    // 定时器设置，实现计时, 单位是秒
-    private int timeLength = 0;
-    private Handler handler = new Handler();
-
-//    private Runnable recordTimeTask = new Runnable() {
-//        public void run() {
-//            if(mState == PlayerState.Playing){
-//                handler.postDelayed(this, 1000);
-//                timeLength++;
-//            }
-//        }
-//    };
 
 }

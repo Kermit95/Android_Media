@@ -8,10 +8,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
         
         <Button
-            android:id="@+id/btn_record"
+            android:id="@+id/btn_activity_record_record"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -19,7 +21,7 @@
             />
 
         <Button
-            android:id="@+id/btn_pause"
+            android:id="@+id/btn_activity_record_pause"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -27,7 +29,7 @@
             />
 
         <Button
-            android:id="@+id/btn_resume"
+            android:id="@+id/btn_activity_record_resume"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -35,7 +37,7 @@
             />
 
         <Button
-            android:id="@+id/btn_save"
+            android:id="@+id/btn_activity_record_save"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -44,15 +46,23 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_activity_record_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="00:00"
+        />
+
     <Button
-        android:id="@+id/btn_delete_all"
+        android:id="@+id/btn_activity_record_delete_all"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:text="删除全部"
         />
 
     <ListView
-        android:id="@+id/list_record"
+        android:id="@+id/list_activity_record"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </ListView>

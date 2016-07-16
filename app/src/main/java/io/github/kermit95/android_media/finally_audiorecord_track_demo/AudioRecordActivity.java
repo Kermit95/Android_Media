@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -56,6 +57,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
     private Button mBtnSave;
     private Button mBtnResume;
     private Button mBtnDeleteAll;
+    private TextView mTvRecordTime;
     private AlertDialog mDialog;
     private ProgressDialog mProgressDialog;
 
@@ -72,13 +74,14 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-        mListView = (ListView) findViewById(R.id.list_record);
+        mListView = (ListView) findViewById(R.id.list_activity_record);
 
-        mBtnRecord = (Button) findViewById(R.id.btn_record);
-        mBtnPause = (Button) findViewById(R.id.btn_pause);
-        mBtnSave = (Button) findViewById(R.id.btn_save);
-        mBtnResume = (Button) findViewById(R.id.btn_resume);
-        mBtnDeleteAll = (Button) findViewById(R.id.btn_delete_all);
+        mBtnRecord = (Button) findViewById(R.id.btn_activity_record_record);
+        mBtnPause = (Button) findViewById(R.id.btn_activity_record_pause);
+        mBtnSave = (Button) findViewById(R.id.btn_activity_record_save);
+        mBtnResume = (Button) findViewById(R.id.btn_activity_record_resume);
+        mBtnDeleteAll = (Button) findViewById(R.id.btn_activity_record_delete_all);
+        mTvRecordTime = (TextView) findViewById(R.id.tv_activity_record_time);
 
         mBtnRecord.setOnClickListener(this);
         mBtnPause.setOnClickListener(this);
@@ -181,7 +184,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void recordState(){
+    private void recordButtonState(){
         toggleRecordButton(false);
         togglePauseButton(true);
         toggleResumeButton(false);
@@ -192,7 +195,7 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.btn_record:
+            case R.id.btn_activity_record_record:
                 final EditText ed_filename = new EditText(this);
 
                 new AlertDialog.Builder(this)
@@ -219,32 +222,37 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                                     }
 
                                     @Override
+                                    public void onProgress() {
+                                    }
+
+                                    @Override
                                     public void onFinish() {
                                         updateDir();
                                     }
                                 });
 
                                 mRecorder.record();
+                                handler.postDelayed(recordTimeTask, 1000);
 
                                 // set button
-                                recordState();
+                                recordButtonState();
 
                             }
                         }).setCancelable(true).show();
                 break;
-            case R.id.btn_pause:
+            case R.id.btn_activity_record_pause:
                 mRecorder.pause();
 
                 togglePauseButton(false);
                 toggleResumeButton(true);
                 break;
-            case R.id.btn_resume:
+            case R.id.btn_activity_record_resume:
                 mRecorder.record();
-
+                handler.postDelayed(recordTimeTask, 1000);
                 togglePauseButton(true);
                 toggleResumeButton(false);
                 break;
-            case R.id.btn_save:
+            case R.id.btn_activity_record_save:
                 if (savedFile != null && savedFile.exists()){
                     mRecorder.stop();
                     new AlertDialog.Builder(this)
@@ -262,11 +270,11 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
                                     }
                                 }
                             }).show();
-                   initButtonState();
+                    initButtonState();
                 }
 
                 break;
-            case R.id.btn_delete_all:
+            case R.id.btn_activity_record_delete_all:
                 fileDelete(new File(fileDirPath));
                 initButtonState();
                 updateDir();
@@ -319,6 +327,8 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mRecorder.stop();
+        mPlayer.stop();
         mRecorder.release();
         mPlayer.release();
     }
@@ -371,13 +381,11 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             // filename
             viewHolder.filename.setText(recordFilesName[position]);
 
-            // button
-            String targetPath = fileDirPath + File.separator + recordFilesName[position];
-            mPlayer.prepare(targetPath);
             viewHolder.play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mPlayer.play();
+                    String targetPath = fileDirPath + File.separator + recordFilesName[position];
+                    mPlayer.play(targetPath);
                 }
             });
 
@@ -457,4 +465,16 @@ public class AudioRecordActivity extends AppCompatActivity implements View.OnCli
             file.delete();
         }
     }
+
+    private Handler handler = new Handler();
+    private int timeLength = 0;
+    private Runnable recordTimeTask = new Runnable() {
+        public void run() {
+            if (mRecorder.getState() == RecordState.Recording){
+                handler.postDelayed(this, 1000);
+                mTvRecordTime.setText(TimeUtils.convertSecondToMinute(timeLength));
+                ++timeLength;
+            }
+        }
+    };
 }

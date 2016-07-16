@@ -8,5 +8,7 @@ public interface RecorderCallback {
 
     void onStart();
 
+    void onProgress();
+
     void onFinish();
 }

@@ -8,6 +8,9 @@ import android.os.Environment;
  * Created by kermit on 16/7/13.
  */
 
+/**
+ * 重要! 勿删
+ */
 public class AudioConfig {
 
     public static final String CONVERTED_OUT_PUT_PATH_M4A =
